@@ -18,7 +18,7 @@ RUN apt-get update && apt-get install -y \
 
 RUN mkdir -p /root/catkin_ws/src
 WORKDIR /root/catkin_ws/src
-RUN git clone https://github.com/neufieldrobotics/MultiCamSLAM
+RUN git clone https://github.com/GoodFridayRobotics/MultiCamSLAM.git
 
 RUN mkdir -p /root/catkin_ws/ThirdParty && \
     cd /root/catkin_ws/ThirdParty && \

@@ -36,7 +36,50 @@ package. We have given the build/install instructions in the next section.
 
 ##### [The entire package list can be built by writing a build.sh file.] 
 
-## B. Build Instructions
+## B1. Building Docker
+### 1. <b>Building Docker File<b> 
+run the following command:
+```
+mkdir -p ~/catkin_ws
+mkdir -p ~/catkin_ws/src
+cd ~/catkin_ws/src
+git clone https://github.com/GoodFridayRobotics/MultiCamSLAM.git
+cd MultiCamSLAM
+git checkout aaron/test
+docker build -t multicamslam .
+```
+### 2.<b>Running Docker Container<b> 
+```
+cd ~/catkin_ws/src/MultiCamSlam
+./run_interactive
+```
+
+### 3. <b>Building Script & Running<b>
+In side the docker Container:
+```
+source /opt/ros/noetic/setup.sh
+# compile code
+catkin_make -DOpenCV_DIR=/root/catkin_ws/ThirdParty/opencv/build \
+    -DDBoW2_DIR=/root/catkin_ws/ThirdParty/DBoW2/build \
+    -DDLib_DIR=/root/catkin_ws/ThirdParty/DLib/build \
+    -Dopengv_DIR=/root/catkin_ws/ThirdParty/opengv/build \
+    -DGTSAM_DIR=/root/catkin_ws/ThirdParty/gtsam/build \
+    -DGTSAM_UNSTABLE_DIR=/root/catkin_ws/ThirdParty/gtsam/build  \
+    -Dopengv_INC_DIR=/root/catkin_ws/ThirdParty/opengv/include \
+    -DCUDA_TOOLKIT_INCLUDE=/home/$USER \
+    -DCUDA_CUDART_LIBRARY=/home/$USER
+# running Multicam Slam
+cd ~/catkin_ws
+./devel/lib/MCApps/MCSlamapp --config_file /root/catkin_ws/src/MultiCamSLAM/MCApps/params/lf_slam_config.cfg --log_file /root/log.txt --traj_file /root/traj.txt
+```
+
+## Troubleshooting
+
+You may run into an issue with Xauthoirity so you might have to fix this you will need to enable x11 forwarding in both the docker container and the host computer. The GUI will appear but the nothing shows up on the GUI when run other than a black box and some text on the side.
+
+If you want to get ROS running then you will have to edit the .cfg file to have `ros=1` then you can run the code again
+
+## B2. Build Instructions
 ### 1. <b>ROS</b>
 Instructions to install ROS can be found in the links below: <br/>
 - ROS Noetic
