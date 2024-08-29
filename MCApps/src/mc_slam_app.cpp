@@ -95,6 +95,7 @@ int main(int argc , char** argv){
     // create the SLAM backend object
     Backend *slam_backend;
    slam_backend = new Backend(settings.backend_params_file, *cam_cfg, slam_frontend);
+   VLOG(0)<<"BackEnd Created"<<endl;
 
    // create a openGlViewer object
    OpenGlViewer* glViewer;
@@ -108,11 +109,12 @@ int main(int argc , char** argv){
         ros::AsyncSpinner spinner(0); // Use max cores possible for mt
         spinner.start();
    }
-
+    VLOG(0)<<"BackEnd Created"<<endl;
    // This method runs the SLAM program in a loop for each new image.
    // user can give keyboard inputs to control the loop for obtaining next image,
    // visualizing and exiting
    handleKeyboardInput(*slam_frontend, *slam_backend,  *datareader, *glViewer);
+   VLOG(0)<<"BackEnd Created"<<endl;
    //need this? 
    int fr_ind=0;
    /*for (auto& fr : slam_frontend->lfFrames){
@@ -130,10 +132,12 @@ int main(int argc , char** argv){
        }
        fr_ind++;
    }*/
+   VLOG(0)<<"BackEnd Created"<<endl;
    slam_frontend->writeLogs(FLAGS_log_file);
    slam_frontend->logFile_.close();
    slam_frontend->logFile2_.close();
    slam_frontend->writeTrajectoryToFile(FLAGS_traj_file, false);
+   VLOG(0)<<"BackEnd Created"<<endl;
     return 0;
 }
 
@@ -255,6 +259,7 @@ void process_frames(FrontEnd& frontend, Backend& backend){
 }
 
 void handleKeyboardInput(FrontEnd& frontend, Backend& backend, DatasetReaderBase &dataReader, OpenGlViewer &glViewer) {
+    VLOG(0)<<"Keyboard"<<endl;
     
     int seq = 1;
     //create live-viewer object
@@ -266,14 +271,17 @@ void handleKeyboardInput(FrontEnd& frontend, Backend& backend, DatasetReaderBase
     
     //need this - vlog values?
     while (true) {
+        VLOG(0)<<"Wait Keyboard"<<endl;
         if ( dataReader.settings.is_ros && ! ros::ok())
             return;
+        VLOG(0)<<"Wait Keyboard"<<endl;
         int key = waitKey(1);
         // VLOG(2) << "Key press: " << (key & 255) << endl;
         if ((key & 255) != 255)
         {
             int condition = ((key & 255));
             switch (condition) {
+                VLOG(0)<<"Keyboard"<<endl;
                 case 46:{
 
                     bool success = updateData(frontend, dataReader);
@@ -329,6 +337,7 @@ void handleKeyboardInput(FrontEnd& frontend, Backend& backend, DatasetReaderBase
         seq++;
 
    }
+   VLOG(0)<<"Keyboard"<<endl;
 }
 
 // get the key points from the images and then use bag of words to group features together across images

@@ -96,6 +96,7 @@ public:
             exit(-1);
         }
         VLOG(0) << "Vocabulary loaded!" << endl << endl;
+        VLOG(0) << "Vocabulary loaded!" << endl << endl;
 
         //init_cond_ = (INIT_COND)fSettings["InitCondition"];
         //posestAlgo_ = (POSEST_ALGO)fSettings["PoseEstimation"];

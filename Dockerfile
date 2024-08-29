@@ -89,6 +89,22 @@ RUN cd /root/catkin_ws/ThirdParty && \
     cmake --build build && \
     ctest
 
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN cd /root && \
+    wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-ubuntu2004.pin && \
+    mv cuda-ubuntu2004.pin /etc/apt/preferences.d/cuda-repository-pin-600 && \
+    wget https://developer.download.nvidia.com/compute/cuda/12.6.0/local_installers/cuda-repo-ubuntu2004-12-6-local_12.6.0-560.28.03-1_amd64.deb && \
+    dpkg -i cuda-repo-ubuntu2004-12-6-local_12.6.0-560.28.03-1_amd64.deb && \
+    cp /var/cuda-repo-ubuntu2004-12-6-local/cuda-*-keyring.gpg /usr/share/keyrings/ && \
+    apt-get update && \
+    apt-get -y install cuda-toolkit-12-6
+
+RUN cd /root && \
+    apt-get install -y xorg && \
+    apt-get install -y xauth && \
+    apt-get install -y openbox
+
 RUN cd /root/catkin_ws && \
     . /opt/ros/noetic/setup.sh && \
     catkin_make -DOpenCV_DIR=/root/catkin_ws/ThirdParty/opencv/build \
@@ -99,7 +115,7 @@ RUN cd /root/catkin_ws && \
     -DGTSAM_UNSTABLE_DIR=/root/catkin_ws/ThirdParty/gtsam/build  \
     -Dopengv_INC_DIR=/root/catkin_ws/ThirdParty/opengv/include \
     -DCUDA_TOOLKIT_INCLUDE=/home/$USER \
-    -DCUDA_CUDART_LIBRARY=/home/$USER \
+    -DCUDA_CUDART_LIBRARY=/home/$USER
 
 
 ENTRYPOINT [ "/bin/bash" ]

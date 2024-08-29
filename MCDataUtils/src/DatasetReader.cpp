@@ -369,7 +369,7 @@ void DatasetReader::read_imgs(string path) {
         
         if (ASYNC_FLAG) {
             if (end>timestamps.size()) {
-                LOG(WARNING)<<"End frame is greater than number of frames!" <<endl;
+                LOG(WARNING)<<"End frame is greater than number of frames!TimeStamp" <<endl;
                 end = timestamps.size();
             }
         } else {
@@ -393,55 +393,63 @@ void DatasetReader::read_imgs(string path) {
         string path_tmp;
         path_tmp = path + cam_names_[i] + "/" + img_prefix;
 
-
+        // LOG(INFO)<<" Entering For Loop cam " <<i<<endl;
         int count = 0;
         for (int j = begin; j < end; j += skip + 1) {
-            string key = img_names.at(j);
-            string filename = key.substr(key.length() - 23, 19);
-            /// This below line is only needed to read segmasks writte in decimal format
-            string segFileName = filename.substr(0, 10) + "." + to_string(atol(filename.substr(10, 9).c_str()));
-            seg_imgs_sub.push_back(segPath + segFileName + "." + settings.mask_type);
-            image_names_sub.push_back(img_names.at(j));
-            if(imgs_read_){
-                if (ASYNC_FLAG) {
-                    VLOG(1) << j << ": " << path_tmp + timestamps.at(j) << " (" << count << ")";
-                    //pushyami :changed reading image in grayscale // chnaged to bgr
-                    image = imread(path_tmp + timestamps.at(j), IMREAD_UNCHANGED);
-                } else {
-                    VLOG(3) << j << ": " << img_names.at(j) << " (" << count << ")";
-                    image = imread(img_names.at(j), IMREAD_UNCHANGED);
+            // LOG(INFO)<<" Entering For Loop "<< j<<endl;
+            // LOG(INFO)<<" End: "<< img_names.size()<<endl;
+            try{
+                string key = img_names.at(j);
+                string filename = key.substr(key.length() - 23, 19);
+                /// This below line is only needed to read segmasks writte in decimal format
+                string segFileName = filename.substr(0, 10) + "." + to_string(atol(filename.substr(10, 9).c_str()));
+                seg_imgs_sub.push_back(segPath + segFileName + "." + settings.mask_type);
+                image_names_sub.push_back(img_names.at(j));
+                LOG(INFO)<<" Entering For Loop "<<j<<endl;
+                if(imgs_read_){
+                    if (ASYNC_FLAG) {
+                        VLOG(1) << j << ": " << path_tmp + timestamps.at(j) << " (" << count << ")";
+                        //pushyami :changed reading image in grayscale // chnaged to bgr
+                        image = imread(path_tmp + timestamps.at(j), IMREAD_UNCHANGED);
+                    } else {
+                        VLOG(3) << j << ": " << img_names.at(j) << " (" << count << ")";
+                        image = imread(img_names.at(j), IMREAD_UNCHANGED);
+                    }
+
+                    Mat image2;
+                    if (UNDISTORT_IMAGES) {
+                        if (RADTAN_FLAG)
+                            undistort(image, image2, K_mats_[i], dist_coeffs_[i]);
+                        else
+                            fisheye::undistortImage(image, image2, K_mats_[i], dist_coeffs_[i], K_mats_[i]);
+                    } else {
+                        image2 = image.clone();
+                    }
+
+                    if (VLOG_IS_ON(4))
+                        qimshow(image2);
+                    refocusing_imgs_sub.push_back(image2);
+
+
+                    if (j == begin)
+                        img_size_ = Size(image.cols, image.rows);
                 }
 
-                Mat image2;
-                if (UNDISTORT_IMAGES) {
-                    if (RADTAN_FLAG)
-                        undistort(image, image2, K_mats_[i], dist_coeffs_[i]);
-                    else
-                        fisheye::undistortImage(image, image2, K_mats_[i], dist_coeffs_[i], K_mats_[i]);
-                } else {
-                    image2 = image.clone();
+                count++;
+
+                if (i == 0) {
+                    long int tstamp_ref = atol(filename.substr(0, 19).c_str());
+                    double stmp = tstamp_ref * 1e-9;
+                    // VLOG(2) << "Timestamp: " << setprecision(9) << std::fixed << stmp << endl;
+                    tStamps_.push_back(stmp);
+                    frames_.push_back(j);
                 }
-
-                if (VLOG_IS_ON(4))
-                    qimshow(image2);
-                refocusing_imgs_sub.push_back(image2);
-
-
-                if (j == begin)
-                    img_size_ = Size(image.cols, image.rows);
-            }
-
-            count++;
-
-            if (i == 0) {
-                long int tstamp_ref = atol(filename.substr(0, 19).c_str());
-                double stmp = tstamp_ref * 1e-9;
-                // VLOG(2) << "Timestamp: " << setprecision(9) << std::fixed << stmp << endl;
-                tStamps_.push_back(stmp);
-                frames_.push_back(j);
+            }catch (const std::out_of_range& e1){
+                // LOG(ERROR)<< "Exception Found: "<<e1.what() << endl;
             }
 
         }
+        // LOG(INFO)<<" Exiting For Loop "<< i<<endl;
 
 
         imgs.push_back(refocusing_imgs_sub);
@@ -451,7 +459,7 @@ void DatasetReader::read_imgs(string path) {
         img_names.clear();
         seg_imgs_sub.clear();
         image_names_sub.clear();
-
+        // LOG(INFO)<<" Finished Reading Images Cam #"<< i<<endl;
     }
 
     NUM_IMAGES =   all_img_names_[0].size();
@@ -513,7 +521,7 @@ void DatasetReader::read_binary_imgs(string path) {
                 end = end_frame_+1;
                 skip = skip_frame_;
                 if (end>img_names.size()) {
-                    LOG(WARNING)<<"End frame is greater than number of frames!" <<endl;
+                    LOG(WARNING)<<"End frame is greater than number of frames!Image Name2" <<endl;
                     end = img_names.size();
                 }
             }

@@ -8,6 +8,7 @@
 #include <vector>
 #include <glog/logging.h>
 #include <dirent.h>
+#include <stdexcept>
 #include <common_utils/tools.h>
 
 #include "MCDataUtilParams.h"
